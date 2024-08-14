@@ -1,6 +1,6 @@
-# example_tool
+# copycat
 
-`example_tool` is a template repository to build Python CLI tool.
+`copycat` is a tool that record and replay keybaord and mouse macro..
 
 ## Installation
 
@@ -16,23 +16,23 @@ poetry install
 You can run the tool using poetry:
 
 ``` shell
-poetry run example_tool --help
+poetry run copycat --help
 ```
 
 Or you can run the tool using python:
 
 ``` shell
-python -m example_tool --help
+python -m copycat --help
 ```
 
 Or you can run the tool directly from the directory or add it to your path:
 
 ``` shell
-example_tool --help
+copycat --help
 ```
 
 ```shell
-usage: example_tool [-h] [--verbose] [--debug] [--quiet | --no-quiet | -q] [--version]
+usage: copycat [-h] [--verbose] [--debug] [--quiet | --no-quiet | -q] [--version]
 
 This is a template repository to build Python CLI tool.
 

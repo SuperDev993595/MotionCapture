@@ -4,11 +4,11 @@ from argparse import Namespace
 
 __version__ = metadata.version(__package__ or __name__)
 
-from example_tool.models.log_level import LogLevel
-from example_tool.shared.utils.logger import Logger
+from copycat.models.log_level import LogLevel
+from copycat.shared.utils.logger import Logger
 
 
-class ExampleTool:
+class Copycat:
     def __init__(self):
         self.logger = Logger()
         self.args = self.parse_args()
