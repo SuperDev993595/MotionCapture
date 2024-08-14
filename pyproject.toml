@@ -10,6 +10,8 @@ packages = [{ include = "copycat" }]
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
 pydantic = "^2.4.2"
+ttkthemes = "^3.2.2"
+pynput = "^1.7.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
