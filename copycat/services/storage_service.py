@@ -3,7 +3,7 @@ import os.path
 import joblib
 
 from copycat.shared.utils.logger import Logger
-from models.history import History
+from models.history.history import History
 
 
 class StorageService:

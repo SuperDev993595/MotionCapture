@@ -5,9 +5,9 @@ from pynput.keyboard import Listener as KeyboardListener, Key, KeyCode
 from pynput.mouse import Listener as MouseListener, Button
 
 from copycat.shared.utils.logger import Logger
-from models.history import History
-from models.move import Move
-from models.move_type import MoveType
+from models.history.history import History
+from models.move.move import Move
+from models.move.move_type import MoveType
 
 
 class ListenersService:
@@ -30,6 +30,14 @@ class ListenersService:
 
     def clean_history(self) -> None:
         self.history = History()
+
+    def start_recording(self) -> None:
+        self.history.start()
+        self.start_listeners()
+
+    def stop_recording(self) -> None:
+        self.history.stop()
+        self.stop_listener()
 
     def start_listeners(self) -> None:
         self.mouse_listener.start()

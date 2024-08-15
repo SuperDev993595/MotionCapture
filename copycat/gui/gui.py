@@ -6,7 +6,7 @@ from typing import Callable
 from ttkthemes.themed_tk import ThemedTk
 
 from copycat.shared.utils.logger import Logger
-from models.history import History
+from models.history.history import History
 from services.listeners_service import ListenersService
 from services.playback_service import PlaybackService
 from services.storage_service import StorageService
@@ -42,22 +42,22 @@ class Gui:
 
     def record(self):
         self.logger.info("Recording new macro")
-        self.listeners_service.start_listeners()
+        self.listeners_service.start_recording()
 
     def pause(self):
         self.logger.info("Pausing macro")
-        self.listeners_service.stop_listener()
+        self.listeners_service.stop_recording()
 
     def save(self):
         self.logger.info("Saving macro")
         history = self.listeners_service.get_history()
         self.save_macro(history)
-        self.listeners_service.stop_listener()
+        self.listeners_service.stop_recording()
         self.listeners_service.clean_history()
 
     def discard(self):
         self.logger.info("Discarding macro")
-        self.listeners_service.stop_listener()
+        self.listeners_service.stop_recording()
         self.listeners_service.clean_history()
 
     def replay(self):
