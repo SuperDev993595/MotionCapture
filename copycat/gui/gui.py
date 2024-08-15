@@ -6,9 +6,11 @@ from typing import Callable
 from ttkthemes.themed_tk import ThemedTk
 
 from copycat.shared.utils.logger import Logger
+from models.history import History
 from services.listeners_service import ListenersService
+from services.storage_service import StorageService
 
-description = dedent("""
+DESCRIPTION = dedent("""
 Copycat is a simple macro recorder and player tool.
 It allows you to record your keyboard and mouse inputs and play them back.
 No tutorial needed, just start recording and play it back.
@@ -19,8 +21,11 @@ Feel free to contribute to the project, open an issue or simply buy me a coffee.
 Copycat was created by ZappaBoy. 
 """)
 
+DEFAULT_MACRO_NAME = "default"
+
 
 class Gui:
+
     def __init__(self):
         self.logger = Logger()
         self.width = 700
@@ -31,6 +36,7 @@ class Gui:
         self.root: tk.Tk | None = None
         self.logger.info("GUI initialized")
         self.listeners_service = ListenersService()
+        self.storage_service = StorageService()
 
     def record(self):
         self.logger.info("Recording new macro")
@@ -43,17 +49,18 @@ class Gui:
     def save(self):
         self.logger.info("Saving macro")
         history = self.listeners_service.get_history()
-        self.logger.debug(f"History: {history}")
-        self.listeners_service.clean_history()
+        self.save_macro(history)
         self.listeners_service.stop_listener()
+        self.listeners_service.clean_history()
 
     def discard(self):
         self.logger.info("Discarding macro")
-        self.listeners_service.clean_history()
         self.listeners_service.stop_listener()
+        self.listeners_service.clean_history()
 
     def replay(self):
         self.logger.info("Replaying macro")
+        self.play_macro()
 
     def show_info(self):
         self.logger.info("Showing info")
@@ -98,8 +105,17 @@ class Gui:
         window.title("Info")
         window.geometry("600x260")
         window.resizable(False, False)
-        label = tk.Label(window, text=description)
+        label = tk.Label(window, text=DESCRIPTION)
         label.pack()
         button = ttk.Button(window, text="Close", command=window.destroy)
         button.pack()
         window.mainloop()
+
+    def save_macro(self, history: History, macro_name: str = DEFAULT_MACRO_NAME):
+        self.logger.debug(f"Saving macro {macro_name}: {history}")
+        self.storage_service.save_history(macro_name=macro_name, data=history)
+
+    def play_macro(self, macro_name: str = DEFAULT_MACRO_NAME):
+        self.logger.debug(f"Playing macro {macro_name}")
+        self.storage_service.load_history(macro_name=macro_name)
+        # TODO: Implement macro playback
