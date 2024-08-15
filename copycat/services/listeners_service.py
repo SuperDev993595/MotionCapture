@@ -45,7 +45,7 @@ class ListenersService:
     def on_click(self, x: int, y: int, button: Button, pressed: bool) -> None:
         if pressed:
             self.logger.debug(f'Mouse clicked at ({x}, {y}) with {button} {pressed}')
-            move = Move(move_type=MoveType.MOUSE_CLICK, x=x, y=y, button=button)
+            move = Move(move_type=MoveType.MOUSE_CLICK, x=x, y=y, button_name=button.name)
             self.history.add_move(move)
 
     def on_scroll(self, x: int, y: int, dx: int, dy: int) -> None:
@@ -58,7 +58,13 @@ class ListenersService:
         if key == keyboard.Key.esc:
             self.logger.debug("Stopping listeners")
             self.stop_listener()
-        move = Move(move_type=MoveType.KEY_PRESS, key=key)
+        key_code = None
+        key_name = None
+        if isinstance(key, KeyCode):
+            key_code = key.char
+        else:
+            key_name = key.name
+        move = Move(move_type=MoveType.KEY_PRESS, key_code=key_code, key_name=key_name)
         self.history.add_move(move)
 
     def on_move(self, x: int, y: int) -> None:

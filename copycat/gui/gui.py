@@ -8,6 +8,7 @@ from ttkthemes.themed_tk import ThemedTk
 from copycat.shared.utils.logger import Logger
 from models.history import History
 from services.listeners_service import ListenersService
+from services.playback_service import PlaybackService
 from services.storage_service import StorageService
 
 DESCRIPTION = dedent("""
@@ -36,6 +37,7 @@ class Gui:
         self.root: tk.Tk | None = None
         self.logger.info("GUI initialized")
         self.listeners_service = ListenersService()
+        self.playback_service = PlaybackService()
         self.storage_service = StorageService()
 
     def record(self):
@@ -117,5 +119,5 @@ class Gui:
 
     def play_macro(self, macro_name: str = DEFAULT_MACRO_NAME):
         self.logger.debug(f"Playing macro {macro_name}")
-        self.storage_service.load_history(macro_name=macro_name)
-        # TODO: Implement macro playback
+        history = self.storage_service.load_history(macro_name=macro_name)
+        self.playback_service.play(history)

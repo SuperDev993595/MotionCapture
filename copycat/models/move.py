@@ -8,5 +8,8 @@ class Move(CustomBaseModel):
     move_type: MoveType
     x: Optional[int] = None
     y: Optional[int] = None
-    key: Optional[str] = None
-    button: Optional[str] = None
+    dx: Optional[int] = None
+    dy: Optional[int] = None
+    button_name: Optional[str] = None
+    key_code: Optional[str] = None
+    key_name: Optional[str] = None
