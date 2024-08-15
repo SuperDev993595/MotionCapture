@@ -22,7 +22,7 @@ class ListenersService:
 
     def create_listeners(self) -> None:
         self.mouse_listener = MouseListener(on_click=self.on_click, on_scroll=self.on_scroll, on_move=self.on_move)
-        self.keyboard_listener = KeyboardListener(on_press=self.on_press)
+        self.keyboard_listener = KeyboardListener(on_press=self.on_press, on_release=self.on_release)
 
     def get_history(self) -> History:
         return self.history
@@ -66,13 +66,14 @@ class ListenersService:
         if key == keyboard.Key.esc:
             self.logger.debug("Stopping listeners")
             self.stop_listener()
-        key_code = None
-        key_name = None
-        if isinstance(key, KeyCode):
-            key_code = key.char
-        else:
-            key_name = key.name
+        key_code, key_name = self.get_key(key)
         move = Move(move_type=MoveType.KEY_PRESS, key_code=key_code, key_name=key_name)
+        self.history.add_move(move)
+
+    def on_release(self, key: Key | KeyCode) -> None:
+        self.logger.debug(f"Key released: {key}")
+        key_code, key_name = self.get_key(key)
+        move = Move(move_type=MoveType.KEY_RELEASED, key_code=key_code, key_name=key_name)
         self.history.add_move(move)
 
     def on_move(self, x: int, y: int) -> None:
@@ -84,3 +85,13 @@ class ListenersService:
             self.last_mouse_move_time = datetime.now() + timedelta(milliseconds=self.pooling)
             move = Move(move_type=MoveType.MOUSE_MOVE, x=x, y=y)
             self.history.add_move(move)
+
+    @staticmethod
+    def get_key(key: Key | KeyCode) -> tuple[str, str]:
+        key_code = None
+        key_name = None
+        if isinstance(key, KeyCode):
+            key_code = key.char
+        elif isinstance(key, Key):
+            key_name = key.name
+        return key_code, key_name

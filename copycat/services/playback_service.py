@@ -37,12 +37,17 @@ class PlaybackService:
         elif move.move_type == MoveType.MOUSE_MOVE:
             self.mouse_controller.position = (move.x, move.y)
         elif move.move_type == MoveType.KEY_PRESS:
-            key = None
-            if move.key_code:
-                key = KeyCode.from_char(move.key_code)
-            elif move.key_name:
-                key = getattr(Key, move.key_name)
+            key = self.get_key(move)
             self.keyboard_controller.press(key)
+        elif move.move_type == MoveType.KEY_RELEASED:
+            key = self.get_key(move)
             self.keyboard_controller.release(key)
         else:
             self.logger.error(f"Unknown move type: {move.move_type}")
+
+    @staticmethod
+    def get_key(move: Move):
+        if move.key_code:
+            return KeyCode.from_char(move.key_code)
+        elif move.key_name:
+            return getattr(Key, move.key_name)
