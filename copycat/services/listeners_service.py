@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 
-from pynput import keyboard
 from pynput.keyboard import Listener as KeyboardListener, Key, KeyCode
 from pynput.mouse import Listener as MouseListener, Button
 
@@ -12,6 +11,7 @@ from models.move.move_type import MoveType
 
 class ListenersService:
     pooling: int = 100_000
+    exit_key: Key = Key.esc
 
     def __init__(self):
         self.logger = Logger()
@@ -63,15 +63,15 @@ class ListenersService:
 
     def on_press(self, key: Key | KeyCode) -> None:
         self.logger.debug(f"Key pressed: {key}")
-        if key == keyboard.Key.esc:
-            self.logger.debug("Stopping listeners")
-            self.stop_listener()
         key_code, key_name = self.get_key(key)
         move = Move(move_type=MoveType.KEY_PRESS, key_code=key_code, key_name=key_name)
         self.history.add_move(move)
 
     def on_release(self, key: Key | KeyCode) -> None:
         self.logger.debug(f"Key released: {key}")
+        if key == self.exit_key:
+            self.logger.debug("Stopping listeners")
+            self.stop_listener()
         key_code, key_name = self.get_key(key)
         move = Move(move_type=MoveType.KEY_RELEASED, key_code=key_code, key_name=key_name)
         self.history.add_move(move)
