@@ -18,7 +18,6 @@ class ListenersService:
         self.mouse_listener = None
         self.keyboard_listener = None
         self.history: History = History()
-        self.create_listeners()
         self.last_mouse_move_time: datetime = datetime.now()
 
     def create_listeners(self) -> None:
@@ -40,6 +39,7 @@ class ListenersService:
         self.stop_listener()
 
     def start_listeners(self) -> None:
+        self.create_listeners()
         self.mouse_listener.start()
         self.keyboard_listener.start()
 
