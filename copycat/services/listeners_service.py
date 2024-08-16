@@ -64,14 +64,15 @@ class ListenersService:
     def on_press(self, key: Key | KeyCode) -> None:
         self.logger.debug(f"Key pressed: {key}")
         key_code, key_name = self.get_key(key)
+        if key == self.exit_key:
+            self.logger.debug("Stopping listeners")
+            self.stop_listener()
+            return
         move = Move(move_type=MoveType.KEY_PRESS, key_code=key_code, key_name=key_name)
         self.history.add_move(move)
 
     def on_release(self, key: Key | KeyCode) -> None:
         self.logger.debug(f"Key released: {key}")
-        if key == self.exit_key:
-            self.logger.debug("Stopping listeners")
-            self.stop_listener()
         key_code, key_name = self.get_key(key)
         move = Move(move_type=MoveType.KEY_RELEASED, key_code=key_code, key_name=key_name)
         self.history.add_move(move)
