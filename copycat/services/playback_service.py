@@ -1,5 +1,6 @@
 import time
 
+import pyautogui
 from pynput.keyboard import Controller as KeyboardController, KeyCode, Key
 from pynput.mouse import Controller as MouseController, Button
 
@@ -10,6 +11,8 @@ from models.move.move_type import MoveType
 
 
 class PlaybackService:
+    # TODO: Add a setting to enable/disable native input
+    use_native_input = True
 
     def __init__(self):
         self.logger = Logger()
@@ -29,25 +32,52 @@ class PlaybackService:
     def play_move(self, move: Move) -> None:
         if move.move_type == MoveType.MOUSE_CLICK:
             self.mouse_controller.position = (move.x, move.y)
-            button = getattr(Button, move.button_name)
-            self.mouse_controller.press(button)
-            self.mouse_controller.release(button)
+            button = self.get_button(move)
+            if move.pressed:
+                self.mouse_controller.press(button)
+            else:
+                self.mouse_controller.release(button)
         elif move.move_type == MoveType.MOUSE_SCROLL:
             self.mouse_controller.scroll(move.dx, move.dy)
         elif move.move_type == MoveType.MOUSE_MOVE:
             self.mouse_controller.position = (move.x, move.y)
         elif move.move_type == MoveType.KEY_PRESS:
-            key = self.get_key(move)
-            self.keyboard_controller.press(key)
+            self.press_key(move)
         elif move.move_type == MoveType.KEY_RELEASED:
-            key = self.get_key(move)
-            self.keyboard_controller.release(key)
+            self.release_key(move)
         else:
             self.logger.error(f"Unknown move type: {move.move_type}")
 
+    def press_key(self, move: Move) -> None:
+        if self.use_native_input:
+            key = self.get_key_name(move)
+            pyautogui.keyDown(key)
+        else:
+            key = self.get_key(move)
+            self.keyboard_controller.press(key)
+
+    def release_key(self, move: Move) -> None:
+        if self.use_native_input:
+            key = self.get_key_name(move)
+            pyautogui.keyUp(key)
+        else:
+            key = self.get_key(move)
+            self.keyboard_controller.release(key)
+
     @staticmethod
-    def get_key(move: Move):
+    def get_key(move: Move) -> Key | KeyCode:
         if move.key_code:
             return KeyCode.from_char(move.key_code)
         elif move.key_name:
             return getattr(Key, move.key_name)
+
+    @staticmethod
+    def get_key_name(move: Move) -> str:
+        if move.key_code:
+            return move.key_code
+        elif move.key_name:
+            return move.key_name
+
+    @staticmethod
+    def get_button(move: Move) -> Button:
+        return getattr(Button, move.button_name)

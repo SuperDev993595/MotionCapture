@@ -12,6 +12,7 @@ class Move(CustomBaseModel):
     dx: Optional[int] = None
     dy: Optional[int] = None
     button_name: Optional[str] = None
+    pressed: Optional[bool] = None
     key_code: Optional[str] = None
     key_name: Optional[str] = None
 

@@ -53,7 +53,7 @@ class ListenersService:
     def on_click(self, x: int, y: int, button: Button, pressed: bool) -> None:
         if pressed:
             self.logger.debug(f'Mouse clicked at ({x}, {y}) with {button} {pressed}')
-            move = Move(move_type=MoveType.MOUSE_CLICK, x=x, y=y, button_name=button.name)
+            move = Move(move_type=MoveType.MOUSE_CLICK, x=x, y=y, button_name=button.name, pressed=pressed)
             self.history.add_move(move)
 
     def on_scroll(self, x: int, y: int, dx: int, dy: int) -> None:

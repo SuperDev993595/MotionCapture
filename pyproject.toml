@@ -13,6 +13,7 @@ pydantic = "^2.4.2"
 ttkthemes = "^3.2.2"
 pynput = "^1.7.7"
 joblib = "^1.4.2"
+pyautogui = "^0.9.54"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
