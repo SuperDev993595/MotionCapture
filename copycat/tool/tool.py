@@ -23,20 +23,22 @@ Feel free to contribute to the project, open an issue or simply buy me a coffee.
 Copycat was created by ZappaBoy. 
 """)
 
+DEFAULT_THEME: str = "equilux"
+DEFAULT_SPEED: float = 1.0
 NO_MACRO_SELECTED: str = "No macro selected"
 DEFAULT_GEOMETRY_POPUP: str = "600x260"
-DEFAULT_SPEED: float = 1.0
 
 
-class Gui:
+class Tool:
 
-    def __init__(self):
+    def __init__(self, theme: str = DEFAULT_THEME, speed: float = DEFAULT_SPEED):
         self.logger = Logger()
         self.width = 800
         self.height = 40
         self.geometry = f"{self.width}x{self.height}"
         self.window_title = "Copycat"
-        self.theme = "equilux"
+        self.theme = theme
+        self.speed = speed
         self.root: tk.Tk | None = None
         self.logger.info("GUI initialized")
         self.listeners_service = ListenersService()
@@ -155,9 +157,9 @@ class Gui:
         label = tk.Label(self.replay_window_popup, text="Enter replay speed: (1.0 = real speed)")
         label.pack()
         self.speed_input = tk.Entry(self.replay_window_popup)
-        self.speed_input.insert(0, str(DEFAULT_SPEED))
+        self.speed_input.insert(0, str(self.speed))
         self.speed_input.pack()
-        replay_button = ttk.Button(self.replay_window_popup, text="Replay", command=self.play_macro)
+        replay_button = ttk.Button(self.replay_window_popup, text="Replay", command=self.replay_macro)
         replay_button.pack(side=tk.LEFT, expand=True)
         close_button = ttk.Button(self.replay_window_popup, text="Close", command=self.replay_window_popup.destroy)
         close_button.pack(side=tk.LEFT, expand=True)
@@ -192,7 +194,7 @@ class Gui:
         self.storage_service.save_history(macro_name=macro_name, data=history)
         self.save_window_popup.destroy()
 
-    def play_macro(self):
+    def replay_macro(self):
         macro_name = self.selected_macro_name.get()
         speed = self.speed_input.get()
         try:
@@ -200,13 +202,17 @@ class Gui:
         except ValueError:
             self.logger.error(f"Invalid speed value: {speed}. Using default speed {DEFAULT_SPEED}")
             speed = DEFAULT_SPEED
+        self.speed = speed
         if macro_name == NO_MACRO_SELECTED:
             return
-        self.logger.debug(f"Playing macro {macro_name}")
         self.hide_window()
-        history = self.storage_service.load_history(macro_name=macro_name)
-        self.playback_service.play(history, speed)
+        self.play_macro(macro_name)
         self.show_window()
+
+    def play_macro(self, macro_name: str):
+        self.logger.debug(f"Playing macro {macro_name}")
+        history = self.storage_service.load_history(macro_name=macro_name)
+        self.playback_service.play(history, self.speed)
 
     def delete_macro(self):
         macro_name = self.selected_macro_name.get()

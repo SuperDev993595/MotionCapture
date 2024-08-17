@@ -38,9 +38,9 @@ copycat --help
 ```
 
 ```shell
-usage: copycat [-h] [--verbose] [--debug] [--quiet | --no-quiet | -q] [--version] [--gui]
+usage: copycat [-h] [--verbose] [--debug] [--quiet | --no-quiet | -q] [--version] [--gui] [--theme THEME] [--speed SPEED] [--reply REPLY]
 
-This is a template repository to build Python CLI tool.
+Copycat is a tool that record and replay mouse and keyboard macro.
 
 options:
   -h, --help            show this help message and exit
@@ -50,6 +50,12 @@ options:
                         Do not print any output/log
   --version, -V         Show version and exit.
   --gui                 Run the tool in GUI mode.
+  --theme THEME, -t THEME
+                        Set the "ttkthemes" GUI theme. (Default: equilux)
+  --speed SPEED, -s SPEED
+                        Speed of the macro playback. (Default: 1.0)
+  --reply REPLY, -r REPLY
+                        Define macro name to reply.
 ```
 
 ## Development
