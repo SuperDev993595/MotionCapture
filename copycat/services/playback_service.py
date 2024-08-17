@@ -4,10 +4,10 @@ import pyautogui
 from pynput.keyboard import Controller as KeyboardController, KeyCode, Key
 from pynput.mouse import Controller as MouseController, Button
 
+from copycat.models.history.history import History
+from copycat.models.move.move import Move
+from copycat.models.move.move_type import MoveType
 from copycat.shared.utils.logger import Logger
-from models.history.history import History
-from models.move.move import Move
-from models.move.move_type import MoveType
 
 
 class PlaybackService:
@@ -51,7 +51,7 @@ class PlaybackService:
     def press_key(self, move: Move) -> None:
         if self.use_native_input:
             key = self.get_key_name(move)
-            pyautogui.keyDown(key)
+            pyautogui.keyDown(key, _pause=False)
         else:
             key = self.get_key(move)
             self.keyboard_controller.press(key)
@@ -59,7 +59,7 @@ class PlaybackService:
     def release_key(self, move: Move) -> None:
         if self.use_native_input:
             key = self.get_key_name(move)
-            pyautogui.keyUp(key)
+            pyautogui.keyUp(key, _pause=False)
         else:
             key = self.get_key(move)
             self.keyboard_controller.release(key)

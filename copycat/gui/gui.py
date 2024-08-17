@@ -6,10 +6,10 @@ from typing import Callable, List
 from pynput.keyboard import Listener as KeyboardListener
 from ttkthemes.themed_tk import ThemedTk
 
+from copycat.services.listeners_service import ListenersService
+from copycat.services.playback_service import PlaybackService
+from copycat.services.storage_service import StorageService
 from copycat.shared.utils.logger import Logger
-from services.listeners_service import ListenersService
-from services.playback_service import PlaybackService
-from services.storage_service import StorageService
 
 DESCRIPTION = dedent("""
 Copycat is a simple macro recorder and player tool.

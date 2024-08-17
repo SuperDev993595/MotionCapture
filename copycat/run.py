@@ -36,7 +36,7 @@ class Copycat:
                             help='Enable debug mode.')
         parser.add_argument('--quiet', '-q', action=argparse.BooleanOptionalAction, default=False,
                             required=False, help='Do not print any output/log')
-        parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}',
+        parser.add_argument('--version', '-V', action='version', version=f'%(prog)s {__version__}',
                             help='Show version and exit.')
         parser.add_argument('--gui', action='store_true', default=False,
                             help='Run the tool in GUI mode.')
@@ -53,7 +53,7 @@ class Copycat:
         if self.args.quiet:
             verbosity_level = LogLevel.DISABLED
         else:
-            if self.args.debug or self.args.verbose > LogLevel.DEBUG.value:
+            if self.args.debug or self.args.verbose > LogLevel.DEBUG.get_value():
                 verbosity_level = LogLevel.DEBUG
             else:
                 verbosity_level = self.args.verbose

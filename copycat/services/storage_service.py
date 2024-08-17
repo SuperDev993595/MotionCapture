@@ -3,8 +3,8 @@ from typing import List
 
 import joblib
 
+from copycat.models.history.history import History
 from copycat.shared.utils.logger import Logger
-from models.history.history import History
 
 EXTENSION = "joblib"
 

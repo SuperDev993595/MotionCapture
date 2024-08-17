@@ -1,16 +1,15 @@
-from datetime import datetime, timedelta
-
 from pynput.keyboard import Listener as KeyboardListener, Key, KeyCode
 from pynput.mouse import Listener as MouseListener, Button
 
+from copycat.models.history.history import History
+from copycat.models.move.move import Move
+from copycat.models.move.move_type import MoveType
+from copycat.shared.utils.generic import get_timestamp
 from copycat.shared.utils.logger import Logger
-from models.history.history import History
-from models.move.move import Move
-from models.move.move_type import MoveType
 
 
 class ListenersService:
-    pooling: int = 100_000
+    pooling: int = 0.03
     exit_key: Key = Key.esc
 
     def __init__(self):
@@ -18,7 +17,7 @@ class ListenersService:
         self.mouse_listener = None
         self.keyboard_listener = None
         self.history: History = History()
-        self.last_mouse_move_time: datetime = datetime.now()
+        self.last_mouse_move_time: float = get_timestamp()
 
     def create_listeners(self) -> None:
         self.mouse_listener = MouseListener(on_click=self.on_click, on_scroll=self.on_scroll, on_move=self.on_move)
@@ -53,12 +52,12 @@ class ListenersService:
     def on_click(self, x: int, y: int, button: Button, pressed: bool) -> None:
         self.logger.debug(f'Mouse clicked at ({x}, {y}) with {button} {pressed}')
         move = Move(move_type=MoveType.MOUSE_CLICK, x=x, y=y, button_name=button.name, pressed=pressed)
-        self.history.add_move(move)
+        self.add_move(move)
 
     def on_scroll(self, x: int, y: int, dx: int, dy: int) -> None:
         self.logger.debug(f'Mouse scrolled at ({x}, {y})({dx}, {dy})')
         move = Move(move_type=MoveType.MOUSE_SCROLL, x=x, y=y, dx=dx, dy=dy)
-        self.history.add_move(move)
+        self.add_move(move)
 
     def on_press(self, key: Key | KeyCode) -> None:
         self.logger.debug(f"Key pressed: {key}")
@@ -67,7 +66,7 @@ class ListenersService:
             self.logger.info("Ignoring Exit Key On Press")
             return
         move = Move(move_type=MoveType.KEY_PRESS, key_code=key_code, key_name=key_name)
-        self.history.add_move(move)
+        self.add_move(move)
 
     def on_release(self, key: Key | KeyCode) -> None:
         self.logger.debug(f"Key released: {key}")
@@ -76,17 +75,20 @@ class ListenersService:
             self.logger.info("Ignoring Exit Key On Release")
             return
         move = Move(move_type=MoveType.KEY_RELEASED, key_code=key_code, key_name=key_name)
-        self.history.add_move(move)
+        self.add_move(move)
 
     def on_move(self, x: int, y: int) -> None:
         self.logger.debug(f"Mouse moved to ({x}, {y})")
-        now = datetime.now()
+        now = get_timestamp()
         time_diff = now - self.last_mouse_move_time
-        if time_diff.microseconds > self.pooling:
+        if time_diff > self.pooling:
             self.logger.debug(f"Mouse move saved to history")
-            self.last_mouse_move_time = datetime.now() + timedelta(milliseconds=self.pooling)
+            self.last_mouse_move_time = now + self.pooling
             move = Move(move_type=MoveType.MOUSE_MOVE, x=x, y=y)
-            self.history.add_move(move)
+            self.add_move(move)
+
+    def add_move(self, move: Move) -> None:
+        self.history.add_move(move)
 
     @staticmethod
     def get_key(key: Key | KeyCode) -> tuple[str, str]:

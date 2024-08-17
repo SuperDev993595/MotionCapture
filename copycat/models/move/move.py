@@ -1,7 +1,7 @@
 from typing_extensions import Optional
 
-from models.custom_base_model import CustomBaseModel
-from models.move.move_type import MoveType
+from copycat.models.custom_base_model import CustomBaseModel
+from copycat.models.move.move_type import MoveType
 
 
 class Move(CustomBaseModel):
