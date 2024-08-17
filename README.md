@@ -1,6 +1,6 @@
-# copycat
+# Copycat
 
-`copycat` is a tool that record and replay keybaord and mouse macro..
+`copycat` is a tool that record and replay mouse and keyboard macro.
 
 ## Installation
 
@@ -32,7 +32,7 @@ copycat --help
 ```
 
 ```shell
-usage: copycat [-h] [--verbose] [--debug] [--quiet | --no-quiet | -q] [--version]
+usage: copycat [-h] [--verbose] [--debug] [--quiet | --no-quiet | -q] [--version] [--gui]
 
 This is a template repository to build Python CLI tool.
 
@@ -42,8 +42,8 @@ options:
   --debug               Enable debug mode.
   --quiet, --no-quiet, -q
                         Do not print any output/log
-  --version             Show version and exit.
-
+  --version, -V         Show version and exit.
+  --gui                 Run the tool in GUI mode.
 ```
 
 ## Development
