@@ -3,6 +3,7 @@ from textwrap import dedent
 from tkinter import ttk, END
 from typing import Callable, List
 
+from pynput.keyboard import Listener as KeyboardListener
 from ttkthemes.themed_tk import ThemedTk
 
 from copycat.shared.utils.logger import Logger
@@ -47,14 +48,24 @@ class Gui:
         self.selected_macro_name: tk.StringVar | None = None
         self.available_macro_names: List[str] = []
         self.macro_selector: tk.OptionMenu | None = None
+        self.exit_key_listener = KeyboardListener(on_press=self.on_press)
+
+    def on_press(self, key):
+        if key == self.listeners_service.exit_key:
+            self.logger.info("Exiting Copycat")
+            self.pause()
 
     def record(self):
         self.logger.info("Recording new macro")
+        self.exit_key_listener.start()
         self.listeners_service.start_recording()
+        self.hide_window()
 
     def pause(self):
         self.logger.info("Pausing macro")
         self.listeners_service.stop_recording()
+        self.exit_key_listener.stop()
+        self.show_window()
 
     def save(self):
         self.logger.info("Saving macro")
@@ -181,8 +192,10 @@ class Gui:
         if macro_name == NO_MACRO_SELECTED:
             return
         self.logger.debug(f"Playing macro {macro_name}")
+        self.hide_window()
         history = self.storage_service.load_history(macro_name=macro_name)
         self.playback_service.play(history)
+        self.show_window()
 
     def delete_macro(self):
         macro_name = self.selected_macro_name.get()
@@ -204,3 +217,12 @@ class Gui:
         self.selected_macro_name.set(NO_MACRO_SELECTED)
         self.available_macro_names = self.get_available_macros()
         self.logger.debug(f"Available macros updated: {self.available_macro_names}")
+
+    def hide_window(self):
+        self.logger.debug("Hiding window")
+        self.root.withdraw()
+        self.replay_window_popup.withdraw()
+
+    def show_window(self):
+        self.root.deiconify()
+        self.replay_window_popup.deiconify()
