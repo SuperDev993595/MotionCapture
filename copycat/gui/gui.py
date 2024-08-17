@@ -1,6 +1,6 @@
 import tkinter as tk
 from textwrap import dedent
-from tkinter import ttk, END
+from tkinter import ttk
 from typing import Callable, List
 
 from pynput.keyboard import Listener as KeyboardListener
@@ -47,7 +47,7 @@ class Gui:
         self.macro_name_entry: tk.Text | None = None
         self.selected_macro_name: tk.StringVar | None = None
         self.available_macro_names: List[str] = []
-        self.macro_selector: tk.OptionMenu | None = None
+        self.manage_macro_selector: tk.OptionMenu | None = None
         self.exit_key_listener = None
 
     def on_press(self, key):
@@ -147,9 +147,9 @@ class Gui:
         label = tk.Label(self.replay_window_popup, text="Enter macro name:")
         label.pack()
         self.update_available_macros()
-        self.macro_selector = tk.OptionMenu(self.replay_window_popup, self.selected_macro_name,
-                                            *self.available_macro_names)
-        self.macro_selector.pack()
+        macro_selector = tk.OptionMenu(self.replay_window_popup, self.selected_macro_name,
+                                       *self.available_macro_names)
+        macro_selector.pack()
         replay_button = ttk.Button(self.replay_window_popup, text="Replay", command=self.play_macro)
         replay_button.pack(side=tk.LEFT, expand=True)
         close_button = ttk.Button(self.replay_window_popup, text="Close", command=self.replay_window_popup.destroy)
@@ -161,9 +161,9 @@ class Gui:
         label = tk.Label(self.manage_window_popup, text="Manage macros")
         label.pack()
         self.update_available_macros()
-        self.macro_selector = tk.OptionMenu(self.manage_window_popup, self.selected_macro_name,
-                                            *self.available_macro_names)
-        self.macro_selector.pack()
+        self.manage_macro_selector = tk.OptionMenu(self.manage_window_popup, self.selected_macro_name,
+                                                   *self.available_macro_names)
+        self.manage_macro_selector.pack()
         delete_button = ttk.Button(self.manage_window_popup, text="Delete", command=self.delete_macro)
         delete_button.pack(side=tk.LEFT, expand=True)
         close_button = ttk.Button(self.manage_window_popup, text="Close", command=self.manage_window_popup.destroy)
@@ -201,8 +201,8 @@ class Gui:
             return
         self.logger.debug(f"Deleting macro {macro_name}")
         self.storage_service.delete_history(macro_name=macro_name)
-        self.macro_selector["menu"].delete(macro_name, END)
         self.update_available_macros()
+        self.manage_window_popup.destroy()
 
     def get_available_macros(self) -> List[str]:
         self.logger.debug("Getting available macros")
