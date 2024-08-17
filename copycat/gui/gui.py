@@ -225,4 +225,5 @@ class Gui:
 
     def show_window(self):
         self.root.deiconify()
-        self.replay_window_popup.deiconify()
+        if self.replay_window_popup:
+            self.replay_window_popup.deiconify()
