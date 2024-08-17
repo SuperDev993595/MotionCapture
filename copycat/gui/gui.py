@@ -1,12 +1,11 @@
 import tkinter as tk
 from textwrap import dedent
-from tkinter import ttk
-from typing import Callable
+from tkinter import ttk, END
+from typing import Callable, List
 
 from ttkthemes.themed_tk import ThemedTk
 
 from copycat.shared.utils.logger import Logger
-from models.history.history import History
 from services.listeners_service import ListenersService
 from services.playback_service import PlaybackService
 from services.storage_service import StorageService
@@ -14,7 +13,8 @@ from services.storage_service import StorageService
 DESCRIPTION = dedent("""
 Copycat is a simple macro recorder and player tool.
 It allows you to record your keyboard and mouse inputs and play them back.
-No tutorial needed, just start recording and play it back.
+No tutorial needed, just start record, save and play it back.
+Just a single tip: ESC key pause the recording.
 
 More information can be found at https://github.com/ZappaBoy/copycat
 Feel free to contribute to the project, open an issue or simply buy me a coffee.
@@ -22,14 +22,15 @@ Feel free to contribute to the project, open an issue or simply buy me a coffee.
 Copycat was created by ZappaBoy. 
 """)
 
-DEFAULT_MACRO_NAME = "default"
+NO_MACRO_SELECTED = "No macro selected"
+DEFAULT_GEOMETRY_POPUP = "600x260"
 
 
 class Gui:
 
     def __init__(self):
         self.logger = Logger()
-        self.width = 700
+        self.width = 800
         self.height = 40
         self.geometry = f"{self.width}x{self.height}"
         self.window_title = "Copycat"
@@ -39,6 +40,13 @@ class Gui:
         self.listeners_service = ListenersService()
         self.playback_service = PlaybackService()
         self.storage_service = StorageService()
+        self.save_window_popup: tk.Toplevel | None = None
+        self.replay_window_popup: tk.Toplevel | None = None
+        self.manage_window_popup: tk.Toplevel | None = None
+        self.macro_name_entry: tk.Text | None = None
+        self.selected_macro_name: tk.StringVar | None = None
+        self.available_macro_names: List[str] = []
+        self.macro_selector: tk.OptionMenu | None = None
 
     def record(self):
         self.logger.info("Recording new macro")
@@ -50,8 +58,7 @@ class Gui:
 
     def save(self):
         self.logger.info("Saving macro")
-        history = self.listeners_service.get_history()
-        self.save_macro(history)
+        self.show_save_popup()
         self.listeners_service.stop_recording()
         self.listeners_service.clean_history()
 
@@ -62,7 +69,11 @@ class Gui:
 
     def replay(self):
         self.logger.info("Replaying macro")
-        self.play_macro()
+        self.show_replay_popup()
+
+    def manage(self):
+        self.logger.info("Managing macro")
+        self.show_manage_popup()
 
     def show_info(self):
         self.logger.info("Showing info")
@@ -92,6 +103,7 @@ class Gui:
         self.build_command_button(self.save, text="Save")
         self.build_command_button(self.discard, text="Discard")
         self.build_command_button(self.replay, text="Replay")
+        self.build_command_button(self.manage, text="Manage")
         self.build_command_button(self.show_info, text="Info")
         self.build_command_button(self.close_window, text="Close")
         return toolbar
@@ -102,22 +114,93 @@ class Gui:
         button.pack(side=tk.LEFT, expand=True)
         return button
 
-    def show_info_popup(self):
+    def build_popup(self, title: str, geometry: str = DEFAULT_GEOMETRY_POPUP) -> tk.Toplevel:
         window = tk.Toplevel(self.root)
-        window.title("Info")
-        window.geometry("600x260")
+        window.title(title)
+        window.geometry(geometry)
         window.resizable(False, False)
+        return window
+
+    def show_save_popup(self):
+        self.save_window_popup = self.build_popup("Save Macro")
+        label = tk.Label(self.save_window_popup, text="Enter macro name:")
+        label.pack()
+        self.macro_name_entry = tk.Text(self.save_window_popup, height=1, width=30)
+        self.macro_name_entry.pack()
+        save_button = ttk.Button(self.save_window_popup, text="Save", command=self.save_macro)
+        save_button.pack(side=tk.LEFT, expand=True)
+        close_button = ttk.Button(self.save_window_popup, text="Close", command=self.save_window_popup.destroy)
+        close_button.pack(side=tk.LEFT, expand=True)
+        self.save_window_popup.mainloop()
+
+    def show_replay_popup(self):
+        self.replay_window_popup = self.build_popup("Replay Macro")
+        label = tk.Label(self.replay_window_popup, text="Enter macro name:")
+        label.pack()
+        self.update_available_macros()
+        self.macro_selector = tk.OptionMenu(self.replay_window_popup, self.selected_macro_name,
+                                            *self.available_macro_names)
+        self.macro_selector.pack()
+        replay_button = ttk.Button(self.replay_window_popup, text="Replay", command=self.play_macro)
+        replay_button.pack(side=tk.LEFT, expand=True)
+        close_button = ttk.Button(self.replay_window_popup, text="Close", command=self.replay_window_popup.destroy)
+        close_button.pack(side=tk.LEFT, expand=True)
+        self.replay_window_popup.mainloop()
+
+    def show_manage_popup(self):
+        self.manage_window_popup = self.build_popup("Manage Macros")
+        label = tk.Label(self.manage_window_popup, text="Manage macros")
+        label.pack()
+        self.update_available_macros()
+        self.macro_selector = tk.OptionMenu(self.manage_window_popup, self.selected_macro_name,
+                                            *self.available_macro_names)
+        self.macro_selector.pack()
+        delete_button = ttk.Button(self.manage_window_popup, text="Delete", command=self.delete_macro)
+        delete_button.pack(side=tk.LEFT, expand=True)
+        close_button = ttk.Button(self.manage_window_popup, text="Close", command=self.manage_window_popup.destroy)
+        close_button.pack(side=tk.LEFT, expand=True)
+        self.manage_window_popup.mainloop()
+
+    def show_info_popup(self):
+        window = self.build_popup("About Copycat")
         label = tk.Label(window, text=DESCRIPTION)
         label.pack()
         button = ttk.Button(window, text="Close", command=window.destroy)
         button.pack()
         window.mainloop()
 
-    def save_macro(self, history: History, macro_name: str = DEFAULT_MACRO_NAME):
-        self.logger.debug(f"Saving macro {macro_name}: {history}")
+    def save_macro(self):
+        macro_name: str = self.macro_name_entry.get(1.0, "end-1c")
+        self.logger.debug(f"Saving macro {macro_name}")
+        history = self.listeners_service.get_history()
         self.storage_service.save_history(macro_name=macro_name, data=history)
+        self.save_window_popup.destroy()
 
-    def play_macro(self, macro_name: str = DEFAULT_MACRO_NAME):
+    def play_macro(self):
+        macro_name = self.selected_macro_name.get()
+        if macro_name == NO_MACRO_SELECTED:
+            return
         self.logger.debug(f"Playing macro {macro_name}")
         history = self.storage_service.load_history(macro_name=macro_name)
         self.playback_service.play(history)
+
+    def delete_macro(self):
+        macro_name = self.selected_macro_name.get()
+        if macro_name == NO_MACRO_SELECTED:
+            return
+        self.logger.debug(f"Deleting macro {macro_name}")
+        self.storage_service.delete_history(macro_name=macro_name)
+        self.macro_selector["menu"].delete(macro_name, END)
+        self.update_available_macros()
+
+    def get_available_macros(self) -> List[str]:
+        self.logger.debug("Getting available macros")
+        macros = self.storage_service.get_available_files()
+        self.logger.debug(f"Available macros: {macros}")
+        return [NO_MACRO_SELECTED] + macros
+
+    def update_available_macros(self):
+        self.selected_macro_name = tk.StringVar()
+        self.selected_macro_name.set(NO_MACRO_SELECTED)
+        self.available_macro_names = self.get_available_macros()
+        self.logger.debug(f"Available macros updated: {self.available_macro_names}")
