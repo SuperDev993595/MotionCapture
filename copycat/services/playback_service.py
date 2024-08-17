@@ -24,9 +24,9 @@ class PlaybackService:
         self.mouse_controller = MouseController()
         self.keyboard_controller = KeyboardController()
 
-    def play(self, history: History) -> None:
+    def play(self, history: History, speed: float = 1.00) -> None:
         for move in history.moves:
-            time.sleep(move.delay)
+            time.sleep(move.delay / speed)
             self.play_move(move)
 
     def play_move(self, move: Move) -> None:

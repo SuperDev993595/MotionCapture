@@ -23,8 +23,9 @@ Feel free to contribute to the project, open an issue or simply buy me a coffee.
 Copycat was created by ZappaBoy. 
 """)
 
-NO_MACRO_SELECTED = "No macro selected"
-DEFAULT_GEOMETRY_POPUP = "600x260"
+NO_MACRO_SELECTED: str = "No macro selected"
+DEFAULT_GEOMETRY_POPUP: str = "600x260"
+DEFAULT_SPEED: float = 1.0
 
 
 class Gui:
@@ -44,7 +45,8 @@ class Gui:
         self.save_window_popup: tk.Toplevel | None = None
         self.replay_window_popup: tk.Toplevel | None = None
         self.manage_window_popup: tk.Toplevel | None = None
-        self.macro_name_entry: tk.Text | None = None
+        self.macro_name_input: tk.Entry | None = None
+        self.speed_input: tk.Entry | None = None
         self.selected_macro_name: tk.StringVar | None = None
         self.available_macro_names: List[str] = []
         self.manage_macro_selector: tk.OptionMenu | None = None
@@ -134,8 +136,8 @@ class Gui:
         self.save_window_popup = self.build_popup("Save Macro")
         label = tk.Label(self.save_window_popup, text="Enter macro name:")
         label.pack()
-        self.macro_name_entry = tk.Text(self.save_window_popup, height=1, width=30)
-        self.macro_name_entry.pack()
+        self.macro_name_input = tk.Entry(self.save_window_popup, width=30)
+        self.macro_name_input.pack()
         save_button = ttk.Button(self.save_window_popup, text="Save", command=self.save_macro)
         save_button.pack(side=tk.LEFT, expand=True)
         close_button = ttk.Button(self.save_window_popup, text="Close", command=self.save_window_popup.destroy)
@@ -150,6 +152,11 @@ class Gui:
         macro_selector = tk.OptionMenu(self.replay_window_popup, self.selected_macro_name,
                                        *self.available_macro_names)
         macro_selector.pack()
+        label = tk.Label(self.replay_window_popup, text="Enter replay speed: (1.0 = real speed)")
+        label.pack()
+        self.speed_input = tk.Entry(self.replay_window_popup)
+        self.speed_input.insert(0, str(DEFAULT_SPEED))
+        self.speed_input.pack()
         replay_button = ttk.Button(self.replay_window_popup, text="Replay", command=self.play_macro)
         replay_button.pack(side=tk.LEFT, expand=True)
         close_button = ttk.Button(self.replay_window_popup, text="Close", command=self.replay_window_popup.destroy)
@@ -179,7 +186,7 @@ class Gui:
         window.mainloop()
 
     def save_macro(self):
-        macro_name: str = self.macro_name_entry.get(1.0, "end-1c")
+        macro_name: str = self.macro_name_input.get()
         self.logger.debug(f"Saving macro {macro_name}")
         history = self.listeners_service.get_history()
         self.storage_service.save_history(macro_name=macro_name, data=history)
@@ -187,12 +194,18 @@ class Gui:
 
     def play_macro(self):
         macro_name = self.selected_macro_name.get()
+        speed = self.speed_input.get()
+        try:
+            speed = float(speed)
+        except ValueError:
+            self.logger.error(f"Invalid speed value: {speed}. Using default speed {DEFAULT_SPEED}")
+            speed = DEFAULT_SPEED
         if macro_name == NO_MACRO_SELECTED:
             return
         self.logger.debug(f"Playing macro {macro_name}")
         self.hide_window()
         history = self.storage_service.load_history(macro_name=macro_name)
-        self.playback_service.play(history)
+        self.playback_service.play(history, speed)
         self.show_window()
 
     def delete_macro(self):
