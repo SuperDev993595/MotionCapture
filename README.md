@@ -2,6 +2,12 @@
 
 `copycat` is a tool that record and replay mouse and keyboard macro.
 
+## Demo
+
+This is a short demo of the tool:
+
+https://github.com/user-attachments/assets/4ce6616e-8fa1-4efb-8c31-f31bfe8e827c
+
 ## Installation
 
 This tool uses [poetry](https://python-poetry.org/) to manage dependencies and packaging. To install all the
