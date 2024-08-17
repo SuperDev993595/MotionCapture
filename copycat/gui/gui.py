@@ -219,7 +219,8 @@ class Gui:
     def hide_window(self):
         self.logger.debug("Hiding window")
         self.root.withdraw()
-        self.replay_window_popup.withdraw()
+        if self.replay_window_popup:
+            self.replay_window_popup.withdraw()
 
     def show_window(self):
         self.root.deiconify()
