@@ -48,7 +48,7 @@ class Gui:
         self.selected_macro_name: tk.StringVar | None = None
         self.available_macro_names: List[str] = []
         self.macro_selector: tk.OptionMenu | None = None
-        self.exit_key_listener = KeyboardListener(on_press=self.on_press)
+        self.exit_key_listener = None
 
     def on_press(self, key):
         if key == self.listeners_service.exit_key:
@@ -57,14 +57,12 @@ class Gui:
 
     def record(self):
         self.logger.info("Recording new macro")
-        self.exit_key_listener.start()
-        self.listeners_service.start_recording()
+        self.start_listeners()
         self.hide_window()
 
     def pause(self):
         self.logger.info("Pausing macro")
-        self.listeners_service.stop_recording()
-        self.exit_key_listener.stop()
+        self.stop_listeners()
         self.show_window()
 
     def save(self):
@@ -227,3 +225,12 @@ class Gui:
         self.root.deiconify()
         if self.replay_window_popup:
             self.replay_window_popup.deiconify()
+
+    def start_listeners(self):
+        self.exit_key_listener = KeyboardListener(on_press=self.on_press)
+        self.exit_key_listener.start()
+        self.listeners_service.start_recording()
+
+    def stop_listeners(self):
+        self.listeners_service.stop_recording()
+        self.exit_key_listener.stop()

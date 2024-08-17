@@ -24,6 +24,6 @@ class History(CustomBaseModel):
             return
         now = datetime.now()
         delay = (now - self.last_move_time).total_seconds()
-        move.set_delay(delay)
         self.last_move_time = now
+        move.set_delay(delay)
         self.moves.append(move)
