@@ -1,3 +1,4 @@
+import threading
 import time
 
 import pyautogui
@@ -24,8 +25,10 @@ class PlaybackService:
         self.mouse_controller = MouseController()
         self.keyboard_controller = KeyboardController()
 
-    def play(self, history: History, speed: float = 1.00) -> None:
+    def play(self, history: History, speed: float = 1.00, stop_event: threading.Event = None) -> None:
         for move in history.moves:
+            if stop_event and stop_event.is_set():
+                break
             time.sleep(move.delay / speed)
             self.play_move(move)
 

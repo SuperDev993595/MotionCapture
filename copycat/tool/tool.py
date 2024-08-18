@@ -1,3 +1,4 @@
+import threading
 import tkinter as tk
 from textwrap import dedent
 from tkinter import ttk
@@ -53,11 +54,7 @@ class Tool:
         self.available_macro_names: List[str] = []
         self.manage_macro_selector: tk.OptionMenu | None = None
         self.exit_key_listener = None
-
-    def on_press(self, key):
-        if key == self.listeners_service.exit_key:
-            self.logger.info("Exiting Copycat")
-            self.pause()
+        self.stop_event: threading.Event | None = None
 
     def record(self):
         self.logger.info("Recording new macro")
@@ -68,6 +65,7 @@ class Tool:
         self.logger.info("Pausing macro")
         self.stop_listeners()
         self.show_window()
+        self.stop_event = None
 
     def save(self):
         self.logger.info("Saving macro")
@@ -212,7 +210,13 @@ class Tool:
     def play_macro(self, macro_name: str):
         self.logger.debug(f"Playing macro {macro_name}")
         history = self.storage_service.load_history(macro_name=macro_name)
-        self.playback_service.play(history, self.speed)
+        self.start_exit_key_listener()
+        self.stop_event = threading.Event()
+        thread = threading.Thread(target=self.playback_service.play, args=(history, self.speed, self.stop_event))
+        thread.start()
+        thread.join()
+        self.stop_event = None
+        self.stop_exit_key_listener()
 
     def delete_macro(self):
         macro_name = self.selected_macro_name.get()
@@ -247,10 +251,26 @@ class Tool:
             self.replay_window_popup.deiconify()
 
     def start_listeners(self):
+        self.start_exit_key_listener()
+        self.listeners_service.start_recording()
+
+    def start_exit_key_listener(self):
         self.exit_key_listener = KeyboardListener(on_press=self.on_press)
         self.exit_key_listener.start()
-        self.listeners_service.start_recording()
 
     def stop_listeners(self):
         self.listeners_service.stop_recording()
-        self.exit_key_listener.stop()
+        self.stop_exit_key_listener()
+
+    def stop_exit_key_listener(self):
+        if self.exit_key_listener:
+            self.exit_key_listener.stop()
+            self.exit_key_listener = None
+
+    def on_press(self, key):
+        if key == self.listeners_service.exit_key:
+            self.logger.info("Exiting Copycat")
+            if self.stop_event is not None:
+                self.logger.debug("Stopping playback")
+                self.stop_event.set()
+            self.pause()
