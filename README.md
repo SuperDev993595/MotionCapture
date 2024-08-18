@@ -17,6 +17,50 @@ dependencies simply run:
 poetry install
 ```
 
+[//]: # (### Installation using pip &#40;Coming soon&#41;)
+
+[//]: # ()
+
+[//]: # (You can install the tool using pip:)
+
+[//]: # ()
+
+[//]: # ()
+
+[//]: # (``` shell)
+
+[//]: # ()
+
+[//]: # (pip install copycat)
+
+[//]: # ()
+
+[//]: # (```)
+
+[//]: # ()
+
+[//]: # ()
+
+[//]: # (### Installation using AUR &#40;Coming soon&#41;)
+
+[//]: # ()
+
+[//]: # (If you are using an Arch-based distribution, you can install the tool using the AUR package:)
+
+[//]: # ()
+
+[//]: # ()
+
+[//]: # (``` shell)
+
+[//]: # ()
+
+[//]: # (yay -S copycat)
+
+[//]: # ()
+
+[//]: # (```)
+
 ## Usage
 
 You can run the tool using poetry:
@@ -58,6 +102,44 @@ options:
                         Define macro name to reply.
 ```
 
+### How it works
+
+First, you need to record a macro, you can do this by running the tool in GUI mode:
+
+``` shell
+copycat --gui
+```
+
+If you want to use a different theme, you can use the `--theme` option:
+
+``` shell
+copycat --gui --theme "arc"
+```
+
+Visit the [ttkthemes](https://ttkthemes.readthedocs.io/en/latest/themes.html) documentation to see all the available
+themes.
+
+#### Record a macro
+
+Then you can record a macro by clicking the `record` button. Once you start recording, the GUI will hide so you can
+perform any mouse and keyboard actions.
+In every moment, press the `ESC` key to `pause` the recording.
+You can resume the recording pressing again the `record` button, or you can complete the record process and save the
+macro by clicking on the `save` button.
+Select the name of the macro and click on the `save` button.
+
+#### Replay a macro
+
+Once you have a macro saved, you can replay it in two ways:
+
+1. by clicking on the `replay` button, and selecting the macro you want to replay and the replay `speed` (1.0 is the
+   real record speed).
+2. by running the tool with the `--reply` option:
+
+``` shell
+copycat --reply <macro_name> --speed <speed>
+```
+
 ## Development
 
 ### Testing
@@ -79,5 +161,5 @@ poetry run poetry2setup > setup.py
 ### Acknowledgements
 
 This project was generated using powerful tools and libraries such as [poetry](https://python-poetry.org/),
-[pydantic](https://docs.pydantic.dev/latest/), [pytest](https://docs.pytest.org/en/stable/) and more, I simply put the
-pieces together. Please check and support all the tools and libraries used in this project.
+[pydantic](https://docs.pydantic.dev/latest/), [pytest](https://docs.pytest.org/en/stable/), [ttkthemes](https://ttkthemes.readthedocs.io/en/latest/authors.html), [pynput](https://pynput.readthedocs.io/en/latest/) [pyautogui](https://pyautogui.readthedocs.io/en/latest/)
+and more, I simply put the pieces together. Please check and support all the tools and libraries used in this project.
