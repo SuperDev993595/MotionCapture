@@ -17,49 +17,27 @@ dependencies simply run:
 poetry install
 ```
 
-[//]: # (### Installation using pip &#40;Coming soon&#41;)
+### Installation using pip
 
-[//]: # ()
+You can install the tool using pip:
 
-[//]: # (You can install the tool using pip:)
+``` shell
+pip install copycat
+```
 
-[//]: # ()
+### Installation using AUR
 
-[//]: # ()
+If you are using an Arch-based distribution, you can install the tool using the AUR package:
 
-[//]: # (``` shell)
+``` shell
+yay -S copycat
+```
 
-[//]: # ()
+Remember to install the other dependencies from the AUR:
 
-[//]: # (pip install copycat)
-
-[//]: # ()
-
-[//]: # (```)
-
-[//]: # ()
-
-[//]: # ()
-
-[//]: # (### Installation using AUR &#40;Coming soon&#41;)
-
-[//]: # ()
-
-[//]: # (If you are using an Arch-based distribution, you can install the tool using the AUR package:)
-
-[//]: # ()
-
-[//]: # ()
-
-[//]: # (``` shell)
-
-[//]: # ()
-
-[//]: # (yay -S copycat)
-
-[//]: # ()
-
-[//]: # (```)
+``` shell
+yay -S python-pynput python-pyautogui python-ttkthemes
+```
 
 ## Usage
 
