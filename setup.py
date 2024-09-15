@@ -39,7 +39,7 @@ setup_kwargs = {
     'package_data': package_data,
     'install_requires': install_requires,
     'entry_points': entry_points,
-    'python_requires': '>=3.11,<3.12',
+    'python_requires': '>=3.11,<3.13',
 }
 
 setup(**setup_kwargs)
